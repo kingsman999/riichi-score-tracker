@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>麻雀 Score Tracker</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-
+  /* System font stack — no external network request */
   :root {
     --p0: #e05252;
     --p1: #4ea86b;
@@ -18,6 +17,8 @@
     --text:   #e8e4d8;
     --muted:  #666680;
     --gold:   #c9a84c;
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-mono:  'Courier New', Courier, monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -25,7 +26,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Noto Serif JP', serif;
+    font-family: var(--font-serif);
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -55,13 +56,13 @@
   }
   .setup-header h1 {
     font-size: 1rem;
-    letter-spacing: .35em;
+    letter-spacing: .3em;
     text-transform: uppercase;
     color: var(--gold);
     font-weight: 400;
     margin-top: 4px;
   }
-  .setup-header .tile-divider {
+  .divider-row {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,17 +70,15 @@
     margin: 8px 0 0;
     color: var(--muted);
     font-size: .65rem;
-    letter-spacing: .25em;
+    letter-spacing: .2em;
   }
-  .setup-header .tile-divider::before,
-  .setup-header .tile-divider::after {
+  .divider-row::before, .divider-row::after {
     content: '';
     flex: 1;
     max-width: 60px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border));
+    background: var(--border);
   }
-  .setup-header .tile-divider::after { background: linear-gradient(270deg, transparent, var(--border)); }
 
   .setup-section-label {
     font-size: .6rem;
@@ -95,12 +94,11 @@
     gap: 10px;
     margin-bottom: 22px;
   }
-
   .setup-player-field {
     background: var(--panel);
     border-radius: 12px;
     border: 1.5px solid var(--border);
-    padding: 10px 12px 10px;
+    padding: 10px 12px;
     position: relative;
     overflow: hidden;
   }
@@ -111,23 +109,22 @@
     height: 3px;
     border-radius: 12px 12px 0 0;
   }
-  .setup-player-field:nth-child(1)::before { background: var(--p0); }
-  .setup-player-field:nth-child(2)::before { background: var(--p1); }
-  .setup-player-field:nth-child(3)::before { background: var(--p2); }
-  .setup-player-field:nth-child(4)::before { background: var(--p3); }
+  .spf-0::before { background: var(--p0); }
+  .spf-1::before { background: var(--p1); }
+  .spf-2::before { background: var(--p2); }
+  .spf-3::before { background: var(--p3); }
 
   .setup-player-field label {
     font-size: .6rem;
     letter-spacing: .2em;
     text-transform: uppercase;
-    color: var(--muted);
     display: block;
     margin-bottom: 6px;
   }
-  .setup-player-field:nth-child(1) label { color: var(--p0); }
-  .setup-player-field:nth-child(2) label { color: var(--p1); }
-  .setup-player-field:nth-child(3) label { color: var(--p2); }
-  .setup-player-field:nth-child(4) label { color: var(--p3); }
+  .spf-0 label { color: var(--p0); }
+  .spf-1 label { color: var(--p1); }
+  .spf-2 label { color: var(--p2); }
+  .spf-3 label { color: var(--p3); }
 
   .setup-player-field input[type="text"] {
     width: 100%;
@@ -135,7 +132,7 @@
     border: none;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-    font-family: 'Noto Serif JP', serif;
+    font-family: var(--font-serif);
     font-size: .95rem;
     padding: 4px 0;
     outline: none;
@@ -165,7 +162,7 @@
     border: none;
     border-bottom: 1px solid var(--border);
     color: var(--gold);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1.4rem;
     text-align: right;
     padding: 2px 0;
@@ -182,17 +179,16 @@
     padding: 16px;
     border-radius: 14px;
     border: none;
-    background: linear-gradient(135deg, var(--gold) 0%, #a0782a 100%);
+    background: var(--gold);
     color: #0f0f14;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: .2em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: filter .15s, transform .1s;
   }
-  .btn-start:active { filter: brightness(1.12); transform: scale(.98); }
+  .btn-start:active { opacity: .85; }
 
   /* ── Main tracker ── */
   #tracker-screen { display: none; width: 100%; flex-direction: column; align-items: center; }
@@ -202,11 +198,10 @@
     width: 100%;
     text-align: center;
     padding: 16px 16px 8px;
-    position: relative;
   }
   header h1 {
     font-size: 1rem;
-    letter-spacing: .35em;
+    letter-spacing: .3em;
     text-transform: uppercase;
     color: var(--gold);
     font-weight: 400;
@@ -218,24 +213,6 @@
     color: var(--text);
     letter-spacing: .1em;
   }
-  .tile-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 6px 0 4px;
-    color: var(--muted);
-    font-size: .65rem;
-    letter-spacing: .25em;
-  }
-  .tile-divider::before, .tile-divider::after {
-    content: '';
-    flex: 1;
-    max-width: 60px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border));
-  }
-  .tile-divider::after { background: linear-gradient(270deg, transparent, var(--border)); }
 
   .total-banner {
     width: calc(100% - 24px);
@@ -248,7 +225,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
   }
   .total-label {
     font-size: .65rem;
@@ -256,12 +233,9 @@
     text-transform: uppercase;
     color: var(--muted);
   }
-  .total-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
+  .total-value { font-size: 1.1rem; font-weight: 700; }
   .total-value.ok   { color: var(--gold); }
-  .total-value.warn { color: #e05252; }
+  .total-value.warn { color: var(--p0); }
 
   .grid {
     width: calc(100% - 24px);
@@ -282,7 +256,6 @@
     gap: 6px;
     position: relative;
     overflow: hidden;
-    transition: transform .1s;
   }
   .card::before {
     content: '';
@@ -298,9 +271,8 @@
 
   .card-label {
     font-size: .6rem;
-    letter-spacing: .25em;
+    letter-spacing: .2em;
     text-transform: uppercase;
-    color: var(--muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -311,17 +283,15 @@
   .card.p3 .card-label { color: var(--p3); }
 
   .card-score {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1.75rem;
     font-weight: 700;
     line-height: 1;
-    letter-spacing: -.02em;
-    transition: color .3s;
   }
-  .card-score.negative { color: #e05252; }
+  .card-score.negative { color: var(--p0); }
 
   .card-delta {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .7rem;
     color: var(--muted);
     min-height: 14px;
@@ -335,22 +305,21 @@
     border: none;
     border-radius: 8px;
     padding: 9px 0;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .85rem;
     cursor: pointer;
     font-weight: 700;
-    letter-spacing: .05em;
-    transition: filter .15s, transform .1s;
   }
-  .btn:active { transform: scale(.94); filter: brightness(1.2); }
+  .btn:active { opacity: .75; }
 
-  .card.p0 .btn-add { background: color-mix(in srgb, var(--p0) 22%, var(--panel)); color: var(--p0); }
-  .card.p1 .btn-add { background: color-mix(in srgb, var(--p1) 22%, var(--panel)); color: var(--p1); }
-  .card.p2 .btn-add { background: color-mix(in srgb, var(--p2) 22%, var(--panel)); color: var(--p2); }
-  .card.p3 .btn-add { background: color-mix(in srgb, var(--p3) 22%, var(--panel)); color: var(--p3); }
-  .btn-sub { background: color-mix(in srgb, #e05252 18%, var(--panel)); color: #e05252; }
+  /* button backgrounds without color-mix (better compatibility) */
+  .card.p0 .btn-add { background: #3a1f1f; color: var(--p0); }
+  .card.p1 .btn-add { background: #1a2e22; color: var(--p1); }
+  .card.p2 .btn-add { background: #1a2440; color: var(--p2); }
+  .card.p3 .btn-add { background: #2a1f35; color: var(--p3); }
+  .btn-sub { background: #2e1f1f; color: var(--p0); }
 
-  /* ── Score modal ── */
+  /* ── Modal ── */
   .modal-backdrop {
     display: none;
     position: fixed; inset: 0;
@@ -361,6 +330,7 @@
   }
   .modal-backdrop.open { display: flex; }
 
+  /* No CSS animation on modal — avoids creating/destroying GPU layers on each open */
   .modal {
     width: 100%;
     max-width: 420px;
@@ -368,11 +338,6 @@
     border-radius: 22px 22px 0 0;
     border-top: 1.5px solid var(--border);
     padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-    animation: slideUp .25s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
   }
 
   .modal-title {
@@ -399,7 +364,7 @@
     margin-bottom: 14px;
   }
   .modal-sign {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1.6rem;
     font-weight: 700;
     width: 32px;
@@ -415,7 +380,7 @@
     border: 1.5px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1.6rem;
     padding: 10px 14px;
     outline: none;
@@ -437,11 +402,10 @@
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 6px 14px;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .8rem;
     color: var(--text);
     cursor: pointer;
-    transition: background .15s;
   }
   .chip:active { background: var(--border); }
 
@@ -453,7 +417,7 @@
     border: 1.5px solid var(--border);
     background: transparent;
     color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .95rem;
     cursor: pointer;
   }
@@ -462,20 +426,19 @@
     padding: 13px;
     border-radius: 12px;
     border: none;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .95rem;
     font-weight: 700;
     cursor: pointer;
     color: #fff;
-    transition: filter .15s;
   }
   .btn-confirm.p0 { background: var(--p0); }
   .btn-confirm.p1 { background: var(--p1); }
   .btn-confirm.p2 { background: var(--p2); }
   .btn-confirm.p3 { background: var(--p3); }
-  .btn-confirm:active { filter: brightness(1.15); }
+  .btn-confirm:active { opacity: .85; }
 
-  /* ── Reset / New Game ── */
+  /* ── Action row ── */
   .action-row {
     width: calc(100% - 24px);
     max-width: 420px;
@@ -490,12 +453,11 @@
     border: 1px solid var(--border);
     background: transparent;
     color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .75rem;
     letter-spacing: .1em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: border-color .2s, color .2s;
   }
   .btn-action:active { border-color: var(--text); color: var(--text); }
 
@@ -519,10 +481,10 @@
     gap: 5px;
     max-height: 160px;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling: touch (deprecated, causes GPU layer retention) */
   }
   .history-item {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: var(--font-mono);
     font-size: .72rem;
     color: var(--muted);
     padding: 5px 10px;
@@ -532,7 +494,13 @@
     justify-content: space-between;
     gap: 6px;
   }
-  .history-item .hi-player { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-item .hi-player {
+    color: var(--text);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .history-item .hi-delta.pos { color: var(--p1); }
   .history-item .hi-delta.neg { color: var(--p0); }
 </style>
@@ -544,24 +512,24 @@
   <div class="setup-header">
     <div class="kanji">麻雀</div>
     <h1>Riichi Score Tracker</h1>
-    <div class="tile-divider">🀄 🀄 🀄</div>
+    <div class="divider-row">🀄 🀄 🀄</div>
   </div>
 
   <div class="setup-section-label">Player Names</div>
   <div class="setup-players">
-    <div class="setup-player-field">
+    <div class="setup-player-field spf-0">
       <label>Player 1</label>
       <input type="text" id="name0" placeholder="Player 1" maxlength="14">
     </div>
-    <div class="setup-player-field">
+    <div class="setup-player-field spf-1">
       <label>Player 2</label>
       <input type="text" id="name1" placeholder="Player 2" maxlength="14">
     </div>
-    <div class="setup-player-field">
+    <div class="setup-player-field spf-2">
       <label>Player 3</label>
       <input type="text" id="name2" placeholder="Player 3" maxlength="14">
     </div>
-    <div class="setup-player-field">
+    <div class="setup-player-field spf-3">
       <label>Player 4</label>
       <input type="text" id="name3" placeholder="Player 4" maxlength="14">
     </div>
@@ -573,7 +541,7 @@
     <input type="number" id="start-score" value="30000" min="0" inputmode="numeric">
   </div>
 
-  <button class="btn-start" onclick="startGame()">Start Game →</button>
+  <button class="btn-start" id="btn-start">Start Game →</button>
 </div>
 
 <!-- ══ TRACKER SCREEN ══ -->
@@ -581,7 +549,7 @@
   <header>
     <div class="kanji">麻雀</div>
     <h1>Riichi Score Tracker</h1>
-    <div class="tile-divider">🀄 🀄 🀄</div>
+    <div class="divider-row">🀄 🀄 🀄</div>
   </header>
 
   <div class="total-banner">
@@ -592,8 +560,8 @@
   <div class="grid" id="grid"></div>
 
   <div class="action-row">
-    <button class="btn-action" onclick="confirmReset()">↺ Reset Scores</button>
-    <button class="btn-action" onclick="newGame()">⊕ New Game</button>
+    <button class="btn-action" id="btn-reset">↺ Reset Scores</button>
+    <button class="btn-action" id="btn-newgame">⊕ New Game</button>
   </div>
 
   <div class="history-section">
@@ -603,7 +571,7 @@
 </div>
 
 <!-- ══ SCORE MODAL ══ -->
-<div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+<div class="modal-backdrop" id="modal">
   <div class="modal">
     <div class="modal-title">Adjust Points</div>
     <div class="modal-player" id="modal-player-name"></div>
@@ -613,185 +581,235 @@
     </div>
     <div class="chips" id="chips"></div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
-      <button class="btn-confirm" id="btn-confirm" onclick="applyChange()">Apply</button>
+      <button class="btn-cancel" id="btn-cancel">Cancel</button>
+      <button class="btn-confirm" id="btn-confirm">Apply</button>
     </div>
   </div>
 </div>
 
 <script>
-const COLORS = ['p0','p1','p2','p3'];
-const QUICK  = [100, 300, 500, 1000, 2000, 3000, 5000, 8000];
+(function () {
+  'use strict';
 
-let players = [];   // { id, name, cls }
-let scores  = [];
-let START   = 30000;
-let history = [];
-let modalIdx  = null;
-let modalMode = 'add';
+  const COLORS = ['p0','p1','p2','p3'];
+  const QUICK  = [100, 300, 500, 1000, 2000, 3000, 5000, 8000];
 
-// ── Setup → Start ──
-function startGame() {
-  const raw = parseInt(document.getElementById('start-score').value, 10);
-  START = (!isNaN(raw) && raw >= 0) ? raw : 30000;
+  let players  = [];
+  let scores   = [];
+  let START    = 30000;
+  let history  = [];
+  let modalIdx  = null;
+  let modalMode = 'add';
 
-  players = COLORS.map((cls, i) => {
-    const inp = document.getElementById(`name${i}`).value.trim();
-    return { id: i, name: inp || `Player ${i+1}`, cls };
-  });
-  scores = players.map(() => START);
-  history = [];
+  // Timer IDs keyed by player index — stored in JS, not on DOM nodes
+  const deltaTimers = {};
 
-  document.getElementById('setup-screen').style.display  = 'none';
-  document.getElementById('tracker-screen').classList.add('visible');
+  // ── Helpers ──
+  function fmt(n) { return n.toLocaleString(); }
 
-  buildGrid();
-  updateScores();
-}
+  function escHtml(s) {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 
-// ── Build cards ──
-function buildGrid() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  players.forEach((p, i) => {
-    const card = document.createElement('div');
-    card.className = `card ${p.cls}`;
-    card.id = `card-${i}`;
-    card.innerHTML = `
-      <div class="card-label" id="label-${i}">${escHtml(p.name)}</div>
-      <div class="card-score" id="score-${i}">${fmt(scores[i])}</div>
-      <div class="card-delta" id="delta-${i}"></div>
-      <div class="btn-row">
-        <button class="btn btn-add" onclick="openModal(${i},'add')">＋ Add</button>
-        <button class="btn btn-sub" onclick="openModal(${i},'sub')">－ Sub</button>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
+  function $(id) { return document.getElementById(id); }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function fmt(n) { return n.toLocaleString(); }
+  // ── Setup ──
+  $('btn-start').addEventListener('click', startGame);
 
-function updateScores() {
-  players.forEach((p, i) => {
-    const el = document.getElementById(`score-${i}`);
-    if (!el) return;
-    el.textContent = fmt(scores[i]);
-    el.classList.toggle('negative', scores[i] < 0);
-  });
-  const total = scores.reduce((a, b) => a + b, 0);
-  const tel = document.getElementById('total');
-  tel.textContent = fmt(total);
-  tel.className = 'total-value ' + (total === START * players.length ? 'ok' : 'warn');
+  function startGame() {
+    const raw = parseInt($('start-score').value, 10);
+    START = (!isNaN(raw) && raw >= 0) ? raw : 30000;
 
-  // Update reset button label
-  document.querySelector('.btn-action').textContent = `↺ Reset to ${fmt(START)}`;
-}
-
-// ── Modal ──
-function openModal(idx, mode) {
-  modalIdx  = idx;
-  modalMode = mode;
-  const p = players[idx];
-  document.getElementById('modal-player-name').textContent = p.name;
-  document.getElementById('modal-player-name').className = `modal-player ${p.cls}`;
-  document.getElementById('btn-confirm').className = `btn-confirm ${p.cls}`;
-  document.getElementById('modal-sign').textContent = mode === 'add' ? '+' : '−';
-  document.getElementById('modal-sign').className = `modal-sign ${mode === 'add' ? 'plus' : 'minus'}`;
-  document.getElementById('modal-input').value = '';
-
-  const chips = document.getElementById('chips');
-  chips.innerHTML = '';
-  QUICK.forEach(v => {
-    const c = document.createElement('button');
-    c.className = 'chip';
-    c.textContent = fmt(v);
-    c.onclick = () => { document.getElementById('modal-input').value = v; };
-    chips.appendChild(c);
-  });
-
-  document.getElementById('modal').classList.add('open');
-  setTimeout(() => document.getElementById('modal-input').focus(), 300);
-}
-
-function closeModal(e) {
-  if (e.target === document.getElementById('modal')) closeModalDirect();
-}
-function closeModalDirect() {
-  document.getElementById('modal').classList.remove('open');
-  document.getElementById('modal-input').value = '';
-}
-
-function applyChange() {
-  const raw = parseInt(document.getElementById('modal-input').value, 10);
-  if (!raw || raw <= 0) { document.getElementById('modal-input').focus(); return; }
-  const delta = modalMode === 'add' ? raw : -raw;
-  scores[modalIdx] += delta;
-
-  const dEl = document.getElementById(`delta-${modalIdx}`);
-  dEl.textContent = (delta > 0 ? '+' : '') + fmt(delta);
-  dEl.className = `card-delta ${delta > 0 ? 'pos' : 'neg'}`;
-  clearTimeout(dEl._t);
-  dEl._t = setTimeout(() => { dEl.textContent = ''; dEl.className = 'card-delta'; }, 2800);
-
-  history.unshift({
-    name: players[modalIdx].name,
-    delta,
-    time: new Date().toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'})
-  });
-  if (history.length > 30) history.pop();
-  renderHistory();
-
-  updateScores();
-  closeModalDirect();
-
-  const card = document.getElementById(`card-${modalIdx}`);
-  card.style.transform = 'scale(1.04)';
-  setTimeout(() => card.style.transform = '', 160);
-}
-
-function renderHistory() {
-  const el = document.getElementById('history');
-  el.innerHTML = history.map(h => `
-    <div class="history-item">
-      <span class="hi-player">${escHtml(h.name)}</span>
-      <span class="hi-delta ${h.delta > 0 ? 'pos' : 'neg'}">${h.delta > 0 ? '+' : ''}${fmt(h.delta)}</span>
-      <span>${h.time}</span>
-    </div>`).join('');
-}
-
-// ── Reset (same players, same starting score) ──
-function confirmReset() {
-  if (confirm(`Reset all scores to ${fmt(START)}?`)) {
-    scores = players.map(() => START);
+    players = COLORS.map((cls, i) => {
+      const val = $('name' + i).value.trim();
+      return { id: i, name: val || ('Player ' + (i + 1)), cls: cls };
+    });
+    scores  = players.map(function () { return START; });
     history = [];
-    renderHistory();
+
+    $('setup-screen').style.display = 'none';
+    $('tracker-screen').classList.add('visible');
+
+    buildGrid();
     updateScores();
-    players.forEach((p, i) => {
-      const dEl = document.getElementById(`delta-${i}`);
-      if (dEl) { dEl.textContent = ''; dEl.className = 'card-delta'; }
+    renderHistory();
+  }
+
+  // ── Grid ──
+  function buildGrid() {
+    const grid = $('grid');
+    grid.innerHTML = '';
+    players.forEach(function (p, i) {
+      const card = document.createElement('div');
+      card.className = 'card ' + p.cls;
+      card.id = 'card-' + i;
+      card.innerHTML =
+        '<div class="card-label" id="label-' + i + '">' + escHtml(p.name) + '</div>' +
+        '<div class="card-score" id="score-' + i + '">' + fmt(scores[i]) + '</div>' +
+        '<div class="card-delta" id="delta-' + i + '"></div>' +
+        '<div class="btn-row">' +
+          '<button class="btn btn-add" data-idx="' + i + '" data-mode="add">\uFF0B Add</button>' +
+          '<button class="btn btn-sub" data-idx="' + i + '" data-mode="sub">\uFF0D Sub</button>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    // Single delegated listener — no per-button closures
+    grid.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-idx]');
+      if (btn) openModal(parseInt(btn.dataset.idx, 10), btn.dataset.mode);
     });
   }
-}
 
-// ── New Game (back to setup) ──
-function newGame() {
-  if (!confirm('Start a new game? This will clear all scores and return to setup.')) return;
-  document.getElementById('tracker-screen').classList.remove('visible');
-  document.getElementById('setup-screen').style.display = 'flex';
-  history = [];
-  document.getElementById('history').innerHTML = '';
-}
-
-// ── Keyboard ──
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('modal').classList.contains('open')) applyChange();
+  function updateScores() {
+    players.forEach(function (p, i) {
+      const el = $('score-' + i);
+      if (!el) return;
+      el.textContent = fmt(scores[i]);
+      el.classList.toggle('negative', scores[i] < 0);
+    });
+    const total = scores.reduce(function (a, b) { return a + b; }, 0);
+    const tel = $('total');
+    tel.textContent = fmt(total);
+    tel.className = 'total-value ' + (total === START * players.length ? 'ok' : 'warn');
+    $('btn-reset').textContent = '\u21BA Reset to ' + fmt(START);
   }
-  if (e.key === 'Escape') closeModalDirect();
-});
+
+  // ── Modal ──
+  function openModal(idx, mode) {
+    modalIdx  = idx;
+    modalMode = mode;
+    const p = players[idx];
+    $('modal-player-name').textContent = p.name;
+    $('modal-player-name').className   = 'modal-player ' + p.cls;
+    $('btn-confirm').className         = 'btn-confirm ' + p.cls;
+    $('modal-sign').textContent        = mode === 'add' ? '+' : '\u2212';
+    $('modal-sign').className          = 'modal-sign ' + (mode === 'add' ? 'plus' : 'minus');
+    $('modal-input').value             = '';
+
+    // Rebuild chips
+    const chips = $('chips');
+    chips.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    QUICK.forEach(function (v) {
+      const c = document.createElement('button');
+      c.className   = 'chip';
+      c.textContent = fmt(v);
+      c.dataset.val = v;
+      frag.appendChild(c);
+    });
+    chips.appendChild(frag);
+
+    $('modal').classList.add('open');
+    // Delay focus — avoids forcing layout during open animation
+    setTimeout(function () { $('modal-input').focus(); }, 100);
+  }
+
+  // Chip clicks delegated
+  $('chips').addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-val]');
+    if (btn) $('modal-input').value = btn.dataset.val;
+  });
+
+  function closeModal() {
+    $('modal').classList.remove('open');
+    $('modal-input').value = '';
+    modalIdx = null;
+  }
+
+  // Close on backdrop click (not inner modal)
+  $('modal').addEventListener('click', function (e) {
+    if (e.target === $('modal')) closeModal();
+  });
+  $('btn-cancel').addEventListener('click', closeModal);
+
+  function applyChange() {
+    const raw = parseInt($('modal-input').value, 10);
+    if (!raw || raw <= 0) { $('modal-input').focus(); return; }
+    if (modalIdx === null) return;
+
+    const delta = modalMode === 'add' ? raw : -raw;
+    scores[modalIdx] += delta;
+
+    // Flash delta label
+    const dEl = $('delta-' + modalIdx);
+    dEl.textContent = (delta > 0 ? '+' : '') + fmt(delta);
+    dEl.className   = 'card-delta ' + (delta > 0 ? 'pos' : 'neg');
+    clearTimeout(deltaTimers[modalIdx]);
+    deltaTimers[modalIdx] = setTimeout(function () {
+      const el = $('delta-' + modalIdx);
+      if (el) { el.textContent = ''; el.className = 'card-delta'; }
+    }, 2800);
+
+    // Brief scale pulse via inline style (no CSS animation layer held)
+    const card = $('card-' + modalIdx);
+    card.style.transform = 'scale(1.04)';
+    setTimeout(function () { card.style.transform = ''; }, 150);
+
+    history.unshift({
+      name : players[modalIdx].name,
+      delta: delta,
+      time : new Date().toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
+    });
+    if (history.length > 30) history.length = 30;  // truncate in-place
+    renderHistory();
+    updateScores();
+    closeModal();
+  }
+
+  $('btn-confirm').addEventListener('click', applyChange);
+
+  function renderHistory() {
+    $('history').innerHTML = history.map(function (h) {
+      return '<div class="history-item">' +
+        '<span class="hi-player">' + escHtml(h.name) + '</span>' +
+        '<span class="hi-delta ' + (h.delta > 0 ? 'pos' : 'neg') + '">' +
+          (h.delta > 0 ? '+' : '') + fmt(h.delta) +
+        '</span>' +
+        '<span>' + h.time + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ── Reset ──
+  $('btn-reset').addEventListener('click', function () {
+    if (!confirm('Reset all scores to ' + fmt(START) + '?')) return;
+    scores = players.map(function () { return START; });
+    history = [];
+    // Cancel any pending delta timers
+    Object.keys(deltaTimers).forEach(function (k) { clearTimeout(deltaTimers[k]); delete deltaTimers[k]; });
+    players.forEach(function (p, i) {
+      const dEl = $('delta-' + i);
+      if (dEl) { dEl.textContent = ''; dEl.className = 'card-delta'; }
+    });
+    renderHistory();
+    updateScores();
+  });
+
+  // ── New Game ──
+  $('btn-newgame').addEventListener('click', function () {
+    if (!confirm('Start a new game? This will clear all scores and return to setup.')) return;
+    // Cancel timers before tearing down the grid
+    Object.keys(deltaTimers).forEach(function (k) { clearTimeout(deltaTimers[k]); delete deltaTimers[k]; });
+    $('tracker-screen').classList.remove('visible');
+    $('setup-screen').style.display = 'flex';
+    history = [];
+    $('history').innerHTML = '';
+    $('grid').innerHTML = '';
+  });
+
+  // ── Keyboard (single listener, never re-added) ──
+  document.addEventListener('keydown', function (e) {
+    if (!$('modal').classList.contains('open')) return;
+    if (e.key === 'Enter')  applyChange();
+    if (e.key === 'Escape') closeModal();
+  });
+
+})();
 </script>
 </body>
 </html>
